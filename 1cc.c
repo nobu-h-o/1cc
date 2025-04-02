@@ -1,5 +1,26 @@
+#include <ctype.h>
+#include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+// Types of tokens
+typedef enum {
+  TK_RESERVED,
+  TK_NUM,
+  TK_EOF,
+} TokenKind;
+
+typedef struct Token Token;
+
+// Token types
+struct Token {
+  TokenKind kind;
+  Token *next;
+  int val;
+  char *str;
+};
 
 int main(int argc, char **argv) {
   if (argc != 2) {
