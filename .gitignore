@@ -1,3 +1,5 @@
-1cc
 *~
 *.o
+tmp*
+a.out
+1cc
