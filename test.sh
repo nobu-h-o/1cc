@@ -2,8 +2,8 @@ assert() {
   expected="$1"
   input="$2"
 
-  ./9cc "$input" > tmp.s
-  cc -o tmp tmp.s
+  ./1cc "$input" > tmp.s
+  cc -o tmp tmp.s -Wa,--generate-missing-build-notes=yes -z noexecstack
   ./tmp
   actual="$?"
 
