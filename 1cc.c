@@ -22,11 +22,25 @@ struct Token {
   char *str;
 };
 
+char *user_input;
 Token *token;
 
 void error(char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  exit(1);
+}
+
+void error_at(char *loc, char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+
+  int pos = loc - user_input;
+  fprintf(stderr, "%s\n", user_input);
+  fprintf(stderr, "%*s", pos, ""); // print pos spaces.
+  fprintf(stderr, "^ ");
   vfprintf(stderr, fmt, ap);
   fprintf(stderr, "\n");
   exit(1);
@@ -42,14 +56,14 @@ bool consume(char op) {
 
 void expect(char op) {
   if(token -> kind != TK_RESERVED || token -> str[0] != op) {
-    error("not '%c'", op);
+    error_at(token->str, "expeced '%c'", op);
   }
   token = token -> next;
 }
 
 int expect_number() {
   if(token -> kind != TK_NUM) {
-    error("Not a number");
+    error_at(token->str, "expected a number.");
   }
   int val = token -> val;
   token = token -> next;
@@ -81,7 +95,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if(*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p =='(' || *p ==')') {
+    if(strchr("+-*/()", *p)) {
       cur = new_token(TK_RESERVED, cur, p++);
       continue;
     }
@@ -92,7 +106,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    error("Could not tokenize");
+    error_at(p, "invalid token.");
   }
   new_token(TK_EOF, cur, p);
   return head.next;
@@ -115,23 +129,28 @@ struct Node {
   int val;
 };
 
-Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
+Node *new_node(NodeKind kind) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
+  return node;
+}
+
+Node *new_binary(NodeKind kind, Node* lhs, Node* rhs){
+  Node *node = new_node(kind);
   node->lhs = lhs;
   node->rhs = rhs;
   return node;
 }
 
-Node *new_node_num(int val) {
-  Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_NUM;
+Node *new_num(int val){
+  Node *node = new_node(ND_NUM);
   node->val = val;
   return node;
 }
 
 Node *expr();
 Node *mul();
+Node *unary();
 Node *primary();
 
 Node *expr() {
@@ -139,25 +158,33 @@ Node *expr() {
 
   for (;;) {
     if (consume('+'))
-      node = new_node(ND_ADD, node, mul());
+      node = new_binary(ND_ADD, node, mul());
     else if (consume('-'))
-      node = new_node(ND_SUB, node, mul());
+      node = new_binary(ND_SUB, node, mul());
     else
       return node;
   }
 }
 
 Node *mul() {
-  Node *node = primary();
+  Node *node = unary();
 
   for (;;) {
     if (consume('*'))
-      node = new_node(ND_MUL, node, primary());
+      node = new_binary(ND_MUL, node, unary());
     else if (consume('/'))
-      node = new_node(ND_DIV, node, primary());
+      node = new_binary(ND_DIV, node, unary());
     else
       return node;
   }
+}
+
+Node *unary() {
+  if (consume('+'))
+    return unary();
+  if (consume('-'))
+    return new_binary(ND_SUB, new_num(0), unary());
+  return primary();
 }
 
 Node *primary() {
@@ -166,7 +193,7 @@ Node *primary() {
     expect(')');
     return node;
   }
-  return new_node_num(expect_number());
+  return new_num(expect_number());
 }
 
 void gen(Node *node) {
@@ -206,7 +233,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  char* user_input = argv[1];
+  user_input = argv[1];
   token = tokenize(user_input);
   Node *node = expr();
 

@@ -10,7 +10,7 @@ assert() {
   if [ "$actual" = "$expected" ]; then
     echo "$input => $actual"
   else
-    echo "$input => $expected expected, but got $actual"
+    echo "$input => $actual received, but expected $expected"
     exit 1
   fi
 }
@@ -27,4 +27,8 @@ assert 120 "9 + 5 + 15 + 21 - 12 + 41 - 0 + 41"
 assert 47 "5+6*7"
 assert 4 "(3+5)/2"
 assert 5 "25 / 5"
+
+assert 5 "-5 + 3 * 5 + -5"
+assert 7 "-50 + -20 + 87 * -5"
+
 echo OK
