@@ -82,7 +82,7 @@ make test
 <details>
 <summary>Here's an example:</summary>
   
-```shell
+```
 sh ./test.sh
 0 => 0
 42 => 42
