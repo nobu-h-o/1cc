@@ -23,6 +23,22 @@ struct Token {
 };
 
 Token *token;
+typedef enum {
+  ND_ADD,
+  ND_SUB,
+  ND_MUL,
+  ND_DIV,
+  ND_NUM,
+} NodeKind;
+
+typedef struct Node Node;
+
+struct Node {
+  NodeKind kind;
+  Node *lhs;  // left hand side
+  Node *rhs;  // right hand side
+  int val;
+};
 
 void error(char *fmt, ...) {
   va_list ap;
