@@ -1,5 +1,5 @@
 # 1cc
-1cc is a toy compiler for c.
+1cc is a toy compiler for C.
 
 ## Progress
 - [x] Basic Math
