@@ -47,4 +47,4 @@ assert 15 "-3 * (-4 + -1)"
 assert 55 "  1 +  2+ 3 +4+5+   6 + 7   +8+9  +  10"
 assert 100 "  (   5   +   5  )  *  (   5  +   5   ) "
 
-echo OK
+echo "All tests succeeded🎉"
