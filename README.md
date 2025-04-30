@@ -1,6 +1,8 @@
 # 1cc
 1cc is a toy compiler for c.
 ## Progress
+- [x] Basic Math
+- [x] Tokenizer
 - [ ] Lexical analysis
 - [ ] Parser
 ## References
