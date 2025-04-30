@@ -56,14 +56,14 @@ bool consume(char op) {
 
 void expect(char op) {
   if(token -> kind != TK_RESERVED || token -> str[0] != op) {
-    error("not '%c'", op);
+    error_at(token->str, "expeced '%c'", op);
   }
   token = token -> next;
 }
 
 int expect_number() {
   if(token -> kind != TK_NUM) {
-    error("Not a number");
+    error_at(token->str, "expected a number.");
   }
   int val = token -> val;
   token = token -> next;
