@@ -22,6 +22,7 @@ struct Token {
   char *str;
 };
 
+char *user_input;
 Token *token;
 
 void error(char *fmt, ...) {
@@ -206,7 +207,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  char* user_input = argv[1];
+  user_input = argv[1];
   token = tokenize(user_input);
   Node *node = expr();
 
