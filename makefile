@@ -1,4 +1,4 @@
-CC = gcc
+CC = cc
 CFLAGS = -std=c11 -g -static
 ASFLAGS = --generate-missing-build-notes=yes
 LDFLAGS = -z noexecstack
