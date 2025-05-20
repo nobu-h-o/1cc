@@ -1,8 +1,9 @@
 CC = gcc
-CFLAGS = -std=c11 -g -static
+CFLAGS = -std=c11 -g -static -fno-common
 ASFLAGS = --generate-missing-build-notes=yes
 LDFLAGS = -z noexecstack
-SRCS = 1cc.c
+
+SRCS = $(wildcard *.c)
 OBJS = $(SRCS:.c=.o)
 TARGET = 1cc
 
@@ -11,7 +12,7 @@ TARGET = 1cc
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -Wa,$(ASFLAGS) -c $< -o $@
