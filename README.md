@@ -4,8 +4,11 @@
 ## Progress
 - [x] Basic Math
 - [x] Tokenizer
-- [ ] Lexical analysis
-- [ ] Parser
+- [X] Lexical analysis
+- [X] Parser
+- [X] Variables
+- [ ] Functions
+- [ ] Types
 
 ## Compiling and executing
 Use the makefile to compile 1cc to bytecode.
