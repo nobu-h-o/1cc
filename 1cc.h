@@ -20,17 +20,16 @@ typedef struct Token Token;
 
 // Token types
 struct Token {
-  TokenKind kind;
-  Token *next;
-  int val;
-  char *str;
-  int len;
+  TokenKind kind;   // Token kind
+  Token *next;      // Next Token
+  int val;          // Value (kind==TK_NUM)
+  char *loc;        // Token location
+  int len;          // Token length
 };
-
-Token *token;
 
 void error(char *fmt, ...);
 void error_at(char *loc, char *fmt, ...);
+void error_tok(Token *tok, char *fmt, ...);
 bool equal(Token *tok, char *op);
 Token *skip(Token *tok, char *op);
 Token *tokenize(char *input);
