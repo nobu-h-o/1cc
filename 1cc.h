@@ -11,6 +11,7 @@
 
 // Types of tokens
 typedef enum {
+  TK_IDENT,
   TK_PUNCT,
   TK_NUM,
   TK_EOF,
@@ -46,7 +47,9 @@ typedef enum {
   ND_NE,
   ND_LT,
   ND_LE,
+  ND_ASSIGN,
   ND_EXPR_STMT,
+  ND_VAR,
   ND_NUM,
 } NodeKind;
 
@@ -58,6 +61,7 @@ struct Node {
   Node* next;
   Node *lhs;  // left hand side
   Node *rhs;  // right hand side
+  char name;
   int val;
 };
 

@@ -2,6 +2,7 @@
 
 static Node *expr(Token **rest, Token *tok);
 static Node *expr_stmt(Token **rest, Token *tok);
+static Node *assign(Token **rest, Token *tok);
 static Node *equality(Token **rest, Token *tok);
 static Node *relational(Token **rest, Token *tok);
 static Node *add(Token **rest, Token *tok);
@@ -34,6 +35,12 @@ Node *new_num(int val){
   return node;
 }
 
+Node *new_var_node(char name){
+  Node *node = new_node(ND_VAR);
+  node->name = name;
+  return node;
+}
+
 Node *stmt(Token **rest, Token *tok){
   return expr_stmt(rest, tok);
 }
@@ -45,7 +52,14 @@ Node *expr_stmt(Token **rest, Token *tok){
 }
 
 Node *expr(Token **rest, Token *tok) {
-  return equality(rest, tok);
+  return assign(rest, tok);
+}
+
+Node *assign(Token **rest, Token *tok){
+  Node *node = equality(&tok, tok);
+  if(equal(tok, "=")) node = new_binary(ND_ASSIGN, node, assign(&tok, tok->next));
+  *rest = tok;
+  return node;
 }
 
 Node *equality(Token **rest, Token *tok){
@@ -150,6 +164,12 @@ Node *primary(Token **rest, Token *tok) {
 
   if (tok->kind == TK_NUM) {
     Node *node = new_num(tok->val);
+    *rest = tok->next;
+    return node;
+  }
+
+  if (tok->kind == TK_IDENT) {
+    Node *node = new_var_node(*tok->loc);
     *rest = tok->next;
     return node;
   }
