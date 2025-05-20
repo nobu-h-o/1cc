@@ -1,7 +1,8 @@
 #include "1cc.h"
 
 static Node *expr(Token **rest, Token *tok);
-static Node *equality();
+static Node *expr_stmt(Token **rest, Token *tok);
+static Node *equality(Token **rest, Token *tok);
 static Node *relational(Token **rest, Token *tok);
 static Node *add(Token **rest, Token *tok);
 static Node *mul(Token **rest, Token *tok);
@@ -33,9 +34,18 @@ Node *new_num(int val){
   return node;
 }
 
+Node *stmt(Token **rest, Token *tok){
+  return expr_stmt(rest, tok);
+}
+
+Node *expr_stmt(Token **rest, Token *tok){
+  Node *node = new_unary(ND_EXPR_STMT, expr(&tok, tok));
+  *rest = skip(tok, ";");
+  return node;
+}
 
 Node *expr(Token **rest, Token *tok) {
-  return equality();
+  return equality(rest, tok);
 }
 
 Node *equality(Token **rest, Token *tok){
@@ -148,7 +158,8 @@ Node *primary(Token **rest, Token *tok) {
 }
 
 Node *parse(Token *tok) {
-  Node *node = expr(&tok, tok);
-  if (tok->kind != TK_EOF) error_tok(tok, "extra token");
-  return node;
+  Node head = {};
+  Node *cur = &head;
+  while(tok->kind != TK_EOF) cur = cur->next = stmt(&tok, tok);
+  return head.next;
 }
