@@ -35,7 +35,7 @@ assert 6 "1 + 10 / 2"
 assert 21 "3 * (2 + (1 + 4))"
 assert 8 "(2 + 2) * (3 - 1)"
 assert 36 "(2 + 4) * (1 + 5)"
-assert 3 "((((3)))))"
+assert 3 "((((3))))"
 
 # Tests for unary operators in complex expressions
 assert 6 "3 * (+3 - 1)"
