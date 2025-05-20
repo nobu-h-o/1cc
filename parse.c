@@ -1,7 +1,9 @@
 #include "1cc.h"
 
 static Node *expr(Token **rest, Token *tok);
-static Node *equality();
+static Node *expr_stmt(Token **rest, Token *tok);
+static Node *assign(Token **rest, Token *tok);
+static Node *equality(Token **rest, Token *tok);
 static Node *relational(Token **rest, Token *tok);
 static Node *add(Token **rest, Token *tok);
 static Node *mul(Token **rest, Token *tok);
@@ -33,9 +35,31 @@ Node *new_num(int val){
   return node;
 }
 
+Node *new_var_node(char name){
+  Node *node = new_node(ND_VAR);
+  node->name = name;
+  return node;
+}
+
+Node *stmt(Token **rest, Token *tok){
+  return expr_stmt(rest, tok);
+}
+
+Node *expr_stmt(Token **rest, Token *tok){
+  Node *node = new_unary(ND_EXPR_STMT, expr(&tok, tok));
+  *rest = skip(tok, ";");
+  return node;
+}
 
 Node *expr(Token **rest, Token *tok) {
-  return equality();
+  return assign(rest, tok);
+}
+
+Node *assign(Token **rest, Token *tok){
+  Node *node = equality(&tok, tok);
+  if(equal(tok, "=")) node = new_binary(ND_ASSIGN, node, assign(&tok, tok->next));
+  *rest = tok;
+  return node;
 }
 
 Node *equality(Token **rest, Token *tok){
@@ -144,11 +168,18 @@ Node *primary(Token **rest, Token *tok) {
     return node;
   }
 
+  if (tok->kind == TK_IDENT) {
+    Node *node = new_var_node(*tok->loc);
+    *rest = tok->next;
+    return node;
+  }
+
   error_tok(tok, "expected an expression");
 }
 
 Node *parse(Token *tok) {
-  Node *node = expr(&tok, tok);
-  if (tok->kind != TK_EOF) error_tok(tok, "extra token");
-  return node;
+  Node head = {};
+  Node *cur = &head;
+  while(tok->kind != TK_EOF) cur = cur->next = stmt(&tok, tok);
+  return head.next;
 }
