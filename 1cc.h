@@ -11,7 +11,7 @@
 
 // Types of tokens
 typedef enum {
-  TK_RESERVED,
+  TK_PUNCT,
   TK_NUM,
   TK_EOF,
 } TokenKind;
