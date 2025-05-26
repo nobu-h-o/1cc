@@ -3,7 +3,7 @@ assert() {
   input="$2"
 
   ./1cc "$input" > tmp.s
-  cc -o tmp tmp.s -Wa,--generate-missing-build-notes=yes -z noexecstack
+  gcc -o tmp tmp.s -Wa,--generate-missing-build-notes=yes -z noexecstack
   ./tmp
   actual="$?"
 
