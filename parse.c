@@ -3,6 +3,12 @@
 // Local variables
 LVar *locals;
 
+char *strndup(const char *s, size_t n) {
+  char *p = calloc(n + 1, sizeof(char));
+  memcpy(p, s, n);
+  return p;
+}
+
 static Node *expr(Token **rest, Token *tok);
 static Node *expr_stmt(Token **rest, Token *tok);
 static Node *assign(Token **rest, Token *tok);
@@ -247,6 +253,25 @@ Node *primary(Token **rest, Token *tok) {
 
   Token *ident_tok = consume_ident(&tok, tok);
   if (ident_tok) {
+    if (equal(tok, "(")) {
+      Node *node = calloc(1, sizeof(Node));
+      node->kind = ND_FUNCALL;
+      node->funcname = strndup(ident_tok->loc, ident_tok->len);
+      
+      tok = tok->next;
+      Node head = {};
+      Node *cur = &head;
+      
+      while (!equal(tok, ")")) {
+        if (cur != &head) tok = skip(tok, ",");
+        cur = cur->next = expr(&tok, tok);
+      }
+      
+      node->args = head.next;
+      *rest = skip(tok, ")");
+      return node;
+    }
+    
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_LVAR;
 
@@ -272,9 +297,73 @@ Node *primary(Token **rest, Token *tok) {
   error_tok(tok, "expected an expression");
 }
 
+Node *function(Token **rest, Token *tok) {
+  Token *name_tok = consume_ident(&tok, tok);
+  if (!name_tok) error_tok(tok, "expected function name");
+  
+  Node *fn = calloc(1, sizeof(Node));
+  fn->kind = ND_FUNCTION;
+  fn->funcname = strndup(name_tok->loc, name_tok->len);
+  
+  locals = NULL;
+  
+  tok = skip(tok, "(");
+  Node param_head = {};
+  Node *param_cur = &param_head;
+  
+  while (!equal(tok, ")")) {
+    if (param_cur != &param_head) tok = skip(tok, ",");
+    Token *param_tok = consume_ident(&tok, tok);
+    if (!param_tok) error_tok(tok, "expected parameter name");
+    
+    Node *param = calloc(1, sizeof(Node));
+    param->kind = ND_LVAR;
+    
+    LVar *lvar = calloc(1, sizeof(LVar));
+    lvar->next = locals;
+    lvar->name = param_tok->loc;
+    lvar->len = param_tok->len;
+    if (locals)
+      lvar->offset = locals->offset + 8;
+    else
+      lvar->offset = 8;
+    param->offset = lvar->offset;
+    locals = lvar;
+    
+    param_cur = param_cur->next = param;
+  }
+  
+  fn->params = param_head.next;
+  tok = skip(tok, ")");
+  tok = skip(tok, "{");
+  
+  Node stmt_head = {};
+  Node *stmt_cur = &stmt_head;
+  while (!equal(tok, "}")) {
+    stmt_cur = stmt_cur->next = stmt(&tok, tok);
+  }
+  
+  fn->body = stmt_head.next;
+  fn->locals = locals;
+  *rest = skip(tok, "}");
+  return fn;
+}
+
 Node *parse(Token *tok) {
   Node head = {};
   Node *cur = &head;
-  while(tok->kind != TK_EOF) cur = cur->next = stmt(&tok, tok);
+  
+  while(tok->kind != TK_EOF) {
+    if (tok->kind == TK_IDENT) {
+      Token *next = tok->next;
+      if (next && equal(next, "(")) {
+        cur = cur->next = function(&tok, tok);
+      } else {
+        error_tok(tok, "expected function declaration");
+      }
+    } else {
+      error_tok(tok, "expected function declaration");
+    }
+  }
   return head.next;
 }

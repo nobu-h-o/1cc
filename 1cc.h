@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+char *strndup(const char *s, size_t n);
+
 
 // tokenize.c
 
@@ -72,6 +74,8 @@ typedef enum {
   ND_IF,
   ND_WHILE,
   ND_FOR,
+  ND_FUNCALL,
+  ND_FUNCTION,
   ND_LVAR,
   ND_NUM,
 } NodeKind;
@@ -90,6 +94,10 @@ struct Node {
   Node *init; // init clause for for
   Node *inc;  // increment clause for for
   Node *body; // body for while/for
+  Node *args; // function arguments
+  Node *params; // function parameters
+  char *funcname; // function name
+  LVar *locals; // function local variables
   int val;
   int offset; // Used for ND_LVAR
 };
