@@ -12,9 +12,8 @@ static void pop(char *arg) {
 }
 
 static void gen_addr(Node* node){
-  if(node->kind == ND_VAR){
-    int offset = (node->name - 'a' +  1) * 8;
-    printf("  lea %d(%%rbp), %%rax\n", -offset);
+  if(node->kind == ND_LVAR){
+    printf("  lea %d(%%rbp), %%rax\n", -node->offset);
     return;
   }
   error("not an lvalue");
@@ -29,7 +28,7 @@ static void gen_expr(Node *node) {
     gen_expr(node->lhs);
     printf("  neg %%rax\n");
     return;
-  case ND_VAR:
+  case ND_LVAR:
     gen_addr(node);
     printf("  mov (%%rax), %%rax\n");
     return;
@@ -97,7 +96,18 @@ void codegen(Node *node) {
 
   printf("  push %%rbp\n");
   printf("  mov %%rsp, %%rbp\n");
-  printf("  sub $208, %%rsp\n"); // 208 == ('z' - 'a' + 1) * 8 (stack size for all possible 64 bit integer variables)
+  
+  // Calculate stack size based on local variables
+  int stack_size = 0;
+  for (LVar *lvar = locals; lvar; lvar = lvar->next) {
+    if (lvar->offset > stack_size)
+      stack_size = lvar->offset;
+  }
+  // Align to 16 bytes
+  stack_size = (stack_size + 15) / 16 * 16;
+  
+  if (stack_size > 0)
+    printf("  sub $%d, %%rsp\n", stack_size);
 
   for(Node *n = node; n; n = n->next){
     gen_stmt(n);
