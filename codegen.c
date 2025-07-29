@@ -1,6 +1,7 @@
 #include "1cc.h"
 
 static int depth;
+static int label_count = 0;
 
 static void push(void){
   printf("  push %%rax\n");
@@ -87,11 +88,66 @@ void gen_stmt(Node* node){
     return;
   }
 
+  if (node->kind == ND_EMPTY_STMT) {
+    return;
+  }
+
   if (node->kind == ND_RETURN) {
     gen_expr(node->lhs);
     printf("  mov %%rbp, %%rsp\n");
     printf("  pop %%rbp\n");
     printf("  ret\n");
+    return;
+  }
+
+  if (node->kind == ND_IF) {
+    int label_num = label_count++;
+    gen_expr(node->cond);
+    printf("  cmp $0, %%rax\n");
+    if (node->els) {
+      printf("  je .Lelse%d\n", label_num);
+      gen_stmt(node->then);
+      printf("  jmp .Lend%d\n", label_num);
+      printf(".Lelse%d:\n", label_num);
+      gen_stmt(node->els);
+      printf(".Lend%d:\n", label_num);
+    } else {
+      printf("  je .Lend%d\n", label_num);
+      gen_stmt(node->then);
+      printf(".Lend%d:\n", label_num);
+    }
+    return;
+  }
+
+  if (node->kind == ND_WHILE) {
+    int label_num = label_count++;
+    printf(".Lbegin%d:\n", label_num);
+    gen_expr(node->cond);
+    printf("  cmp $0, %%rax\n");
+    printf("  je .Lend%d\n", label_num);
+    gen_stmt(node->body);
+    printf("  jmp .Lbegin%d\n", label_num);
+    printf(".Lend%d:\n", label_num);
+    return;
+  }
+
+  if (node->kind == ND_FOR) {
+    int label_num = label_count++;
+    if (node->init) {
+      gen_expr(node->init);
+    }
+    printf(".Lbegin%d:\n", label_num);
+    if (node->cond) {
+      gen_expr(node->cond);
+      printf("  cmp $0, %%rax\n");
+      printf("  je .Lend%d\n", label_num);
+    }
+    gen_stmt(node->body);
+    if (node->inc) {
+      gen_expr(node->inc);
+    }
+    printf("  jmp .Lbegin%d\n", label_num);
+    printf(".Lend%d:\n", label_num);
     return;
   }
 
