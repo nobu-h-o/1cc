@@ -199,7 +199,7 @@ void gen_stmt(Node* node){
       printf("  cmp rax, 0\n");
       printf("  jne .Lbegin%d\n", label_num);
     } else {
-      printf("  jmp .Lcond%d\n", label_num);
+      printf("  jmp .Lbegin%d\n", label_num);
     }
     return;
   }
