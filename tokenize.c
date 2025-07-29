@@ -54,13 +54,6 @@ bool startswith(char *p, char *q){
   return memcmp(p, q, strlen(q))==0;
 }
 
-int is_alnum(char c) {
-  return ('a' <= c && c <= 'z') ||
-         ('A' <= c && c <= 'Z') ||
-         ('0' <= c && c <= '9') ||
-         (c == '_');
-}
-
 int read_punct(char *p){
   if(startswith(p, "==") || startswith(p, "!=") ||
     startswith(p, "<=") || startswith(p, ">="))
@@ -90,7 +83,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (strncmp(p, "return", 6) == 0 && !is_alnum(p[6])) {
+    if (strncmp(p, "return", 6) == 0 && !isalnum(p[6])) {
       cur = cur->next = new_token(TK_RETURN, p, p + 6);
       p += 6;
       continue;
