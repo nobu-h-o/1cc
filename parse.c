@@ -65,6 +65,59 @@ Node *stmt(Token **rest, Token *tok){
     *rest = skip(tok, ";");
     return node;
   }
+
+  if (equal(tok, ";")) {
+    Node *node = new_node(ND_EMPTY_STMT);
+    *rest = tok->next;
+    return node;
+  }
+
+  if (tok->kind == TK_IF) {
+    Node *node = new_node(ND_IF);
+    tok = skip(tok->next, "(");
+    node->cond = expr(&tok, tok);
+    tok = skip(tok, ")");
+    node->then = stmt(&tok, tok);
+    if (tok->kind == TK_ELSE) {
+      node->els = stmt(&tok, tok->next);
+    }
+    *rest = tok;
+    return node;
+  }
+
+  if (tok->kind == TK_WHILE) {
+    Node *node = new_node(ND_WHILE);
+    tok = skip(tok->next, "(");
+    node->cond = expr(&tok, tok);
+    tok = skip(tok, ")");
+    node->body = stmt(&tok, tok);
+    *rest = tok;
+    return node;
+  }
+
+  if (tok->kind == TK_FOR) {
+    Node *node = new_node(ND_FOR);
+    tok = skip(tok->next, "(");
+    
+    if (!equal(tok, ";")) {
+      node->init = expr(&tok, tok);
+    }
+    tok = skip(tok, ";");
+    
+    if (!equal(tok, ";")) {
+      node->cond = expr(&tok, tok);
+    }
+    tok = skip(tok, ";");
+    
+    if (!equal(tok, ")")) {
+      node->inc = expr(&tok, tok);
+    }
+    tok = skip(tok, ")");
+    
+    node->body = stmt(&tok, tok);
+    *rest = tok;
+    return node;
+  }
   
   return expr_stmt(rest, tok);
 }

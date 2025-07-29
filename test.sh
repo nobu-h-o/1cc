@@ -90,4 +90,48 @@ assert 10 "return 2*5;"
 assert 7 "a=10; return a-3;"
 assert 15 "return 3*5; a=99;"
 
+# Tests for if statements
+assert 42 "if (1) return 42; return 0;"
+assert 0 "if (0) return 42; return 0;"
+assert 1 "if (2-1) return 1; return 0;"
+assert 0 "if (1-1) return 1; return 0;"
+assert 5 "a=5; if (a) return a; return 0;"
+assert 10 "a=0; if (a) return a; return 10;"
+
+# Tests for if-else statements
+assert 42 "if (1) return 42; else return 24;"
+assert 24 "if (0) return 42; else return 24;"
+assert 10 "if (1==1) return 10; else return 20;"
+assert 20 "if (1==2) return 10; else return 20;"
+assert 3 "a=3; if (a>5) return 1; else return a;"
+assert 7 "a=3; b=4; if (a>b) return a; else return a+b;"
+
+# Tests for while loops
+assert 10 "i=0; while (i<10) i=i+1; return i;"
+assert 3 "i=0; while (i<3) i=i+1; return i;"
+assert 0 "i=0; while (i<0) i=i+1; return i;"
+assert 16 "i=1; while (i<10) i=i*2; return i;"
+
+# Tests for for loops
+assert 4 "for (i=0; i<5; i=i+1) j=i; return j;"
+assert 11 "for (i=0; i<=10; i=i+1) ; return i;"
+assert 45 "sum=0; for (i=1; i<=9; i=i+1) sum=sum+i; return sum;"
+
+# Tests for for loops with empty clauses
+assert 99 "j=99; for (i=0; i<0; i=i+1) j=i; return j;"
+assert 5 "i=0; for (; i<5; i=i+1) ; return i;"
+assert 10 "for (i=0; ; i=i+1) if (i>=10) return i;"
+
+# Tests for nested control structures
+assert 6 "for (i=1; i<=3; i=i+1) if (i==3) return i*2; return 0;"
+assert 4 "i=1; while (i<5) if (i==4) return i; else i=i+1; return 0;"
+assert 10 "if (1) for (i=0; i<10; i=i+1) j=i+1; else j=0; return j;"
+assert 1 "if (3>2) if (1<2) return 1; return 0;"
+assert 5 "for (i=0; i<3; i=i+1) for (j=0; j<2; j=j+1) k=i*2+j; return k;"
+
+# Tests for control structures with variables
+assert 15 "a=3; b=5; if (a<b) return a*b; else return a+b;"
+assert 30 "n=4; sum=0; for (i=1; i<=n; i=i+1) sum=sum+i*i; return sum;"
+assert 4 "x=2; result=1; for (i=0; i<x; i=i+1) result=result*2; return result;"
+
 echo "All tests succeeded 🎉"

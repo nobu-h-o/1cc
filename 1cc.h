@@ -12,6 +12,10 @@
 // Types of tokens
 typedef enum {
   TK_RETURN,
+  TK_IF,
+  TK_ELSE,
+  TK_WHILE,
+  TK_FOR,
   TK_IDENT,
   TK_PUNCT,
   TK_NUM,
@@ -64,6 +68,10 @@ typedef enum {
   ND_ASSIGN,
   ND_RETURN,
   ND_EXPR_STMT,
+  ND_EMPTY_STMT,
+  ND_IF,
+  ND_WHILE,
+  ND_FOR,
   ND_LVAR,
   ND_NUM,
 } NodeKind;
@@ -76,6 +84,12 @@ struct Node {
   Node* next;
   Node *lhs;  // left hand side
   Node *rhs;  // right hand side
+  Node *cond; // condition for if/while/for
+  Node *then; // then clause for if
+  Node *els;  // else clause for if
+  Node *init; // init clause for for
+  Node *inc;  // increment clause for for
+  Node *body; // body for while/for
   int val;
   int offset; // Used for ND_LVAR
 };
