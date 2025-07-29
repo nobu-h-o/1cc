@@ -42,6 +42,14 @@ Node *new_var_node(char name){
 }
 
 Node *stmt(Token **rest, Token *tok){
+  if (tok->kind == TK_RETURN) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_RETURN;
+    node->lhs = expr(&tok, tok->next);
+    *rest = skip(tok, ";");
+    return node;
+  }
+  
   return expr_stmt(rest, tok);
 }
 

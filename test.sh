@@ -74,4 +74,12 @@ assert 6 "a=b=3; a+b;"
 assert 15 "a=3*5;"
 assert 5 "a=4*8*5;b=16*2;a/b;"
 
+# Tests for return statements
+assert 42 "return 42;"
+assert 5 "return 5; return 8;"
+assert 14 "a=3; b=5*6-8; return a+b/2;"
+assert 10 "return 2*5;"
+assert 7 "a=10; return a-3;"
+assert 15 "return 3*5; a=99;"
+
 echo "All tests succeeded 🎉"
