@@ -172,13 +172,13 @@ void gen_stmt(Node* node){
 
   if (node->kind == ND_WHILE) {
     int label_num = label_count++;
+    printf("  jmp .Lcond%d\n", label_num);
     printf(".Lbegin%d:\n", label_num);
+    gen_stmt(node->body);
+    printf(".Lcond%d:\n", label_num);
     gen_expr(node->cond);
     printf("  cmp rax, 0\n");
-    printf("  je .Lend%d\n", label_num);
-    gen_stmt(node->body);
-    printf("  jmp .Lbegin%d\n", label_num);
-    printf(".Lend%d:\n", label_num);
+    printf("  jne .Lbegin%d\n", label_num);
     return;
   }
 
@@ -187,18 +187,20 @@ void gen_stmt(Node* node){
     if (node->init) {
       gen_expr(node->init);
     }
+    printf("  jmp .Lcond%d\n", label_num);
     printf(".Lbegin%d:\n", label_num);
-    if (node->cond) {
-      gen_expr(node->cond);
-      printf("  cmp rax, 0\n");
-      printf("  je .Lend%d\n", label_num);
-    }
     gen_stmt(node->body);
     if (node->inc) {
       gen_expr(node->inc);
     }
-    printf("  jmp .Lbegin%d\n", label_num);
-    printf(".Lend%d:\n", label_num);
+    printf(".Lcond%d:\n", label_num);
+    if (node->cond) {
+      gen_expr(node->cond);
+      printf("  cmp rax, 0\n");
+      printf("  jne .Lbegin%d\n", label_num);
+    } else {
+      printf("  jmp .Lbegin%d\n", label_num);
+    }
     return;
   }
 
