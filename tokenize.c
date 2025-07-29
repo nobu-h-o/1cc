@@ -88,10 +88,11 @@ Token *tokenize(char *p) {
       p += 6;
       continue;
     }
-
-    if('a'<=*p && *p<='z'){
-      cur = cur->next = new_token(TK_IDENT, p, p+1);
-      p++;
+    
+    if(isalpha(*p)){
+      char *start = p;
+      while(isalnum(*p)) p++;
+      cur = cur->next = new_token(TK_IDENT, start, p);
       continue;
     }
 

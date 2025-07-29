@@ -74,6 +74,14 @@ assert 6 "a=b=3; a+b;"
 assert 15 "a=3*5;"
 assert 5 "a=4*8*5;b=16*2;a/b;"
 
+# Tests for multi-character variables
+assert 6 "foo=1; bar=2+3; foo+bar;"
+assert 5 "abc=10; xyz=5; abc-xyz;"
+assert 6 "foo=3; foo=foo*2; foo;"
+assert 21 "hello=7; world=hello*2; hello+world;"
+assert 100 "variable1=25; variable2=variable1*4; variable2;"
+assert 42 "x123=21; y456=x123*2; y456;"
+
 # Tests for return statements
 assert 42 "return 42;"
 assert 5 "return 5; return 8;"
