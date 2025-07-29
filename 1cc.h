@@ -37,6 +37,19 @@ Token *tokenize(char *input);
 
 // parse.c
 
+typedef struct LVar LVar;
+
+// Local variable type
+struct LVar {
+  LVar *next; // Next variable or NULL
+  char *name; // Variable name
+  int len;    // Name length
+  int offset; // Offset from RBP
+};
+
+// Local variables
+extern LVar *locals;
+
 typedef enum {
   ND_ADD,
   ND_SUB,
@@ -49,7 +62,7 @@ typedef enum {
   ND_LE,
   ND_ASSIGN,
   ND_EXPR_STMT,
-  ND_VAR,
+  ND_LVAR,
   ND_NUM,
 } NodeKind;
 
@@ -61,10 +74,12 @@ struct Node {
   Node* next;
   Node *lhs;  // left hand side
   Node *rhs;  // right hand side
-  char name;
   int val;
+  int offset; // Used for ND_LVAR
 };
 
+LVar *find_lvar(Token *tok);
+Token *consume_ident(Token **rest, Token *tok);
 Node *parse(Token *tok);
 
 // codegen.c

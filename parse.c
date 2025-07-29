@@ -1,5 +1,8 @@
 #include "1cc.h"
 
+// Local variables
+LVar *locals;
+
 static Node *expr(Token **rest, Token *tok);
 static Node *expr_stmt(Token **rest, Token *tok);
 static Node *assign(Token **rest, Token *tok);
@@ -9,6 +12,24 @@ static Node *add(Token **rest, Token *tok);
 static Node *mul(Token **rest, Token *tok);
 static Node *unary(Token **rest, Token *tok);
 static Node *primary(Token **rest, Token *tok);
+
+// Find variable by name. Return NULL if not found.
+LVar *find_lvar(Token *tok) {
+  for (LVar *var = locals; var; var = var->next)
+    if (var->len == tok->len && !memcmp(tok->loc, var->name, var->len))
+      return var;
+  return NULL;
+}
+
+// Consume identifier token
+Token *consume_ident(Token **rest, Token *tok) {
+  if (tok->kind == TK_IDENT) {
+    *rest = tok->next;
+    return tok;
+  }
+  *rest = tok;
+  return NULL;
+}
 
 Node *new_node(NodeKind kind) {
   Node *node = calloc(1, sizeof(Node));
@@ -35,11 +56,6 @@ Node *new_num(int val){
   return node;
 }
 
-Node *new_var_node(char name){
-  Node *node = new_node(ND_VAR);
-  node->name = name;
-  return node;
-}
 
 Node *stmt(Token **rest, Token *tok){
   return expr_stmt(rest, tok);
@@ -168,9 +184,27 @@ Node *primary(Token **rest, Token *tok) {
     return node;
   }
 
-  if (tok->kind == TK_IDENT) {
-    Node *node = new_var_node(*tok->loc);
-    *rest = tok->next;
+  Token *ident_tok = consume_ident(&tok, tok);
+  if (ident_tok) {
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_LVAR;
+
+    LVar *lvar = find_lvar(ident_tok);
+    if (lvar) {
+      node->offset = lvar->offset;
+    } else {
+      lvar = calloc(1, sizeof(LVar));
+      lvar->next = locals;
+      lvar->name = ident_tok->loc;
+      lvar->len = ident_tok->len;
+      if (locals)
+        lvar->offset = locals->offset + 8;
+      else
+        lvar->offset = 8;
+      node->offset = lvar->offset;
+      locals = lvar;
+    }
+    *rest = tok;
     return node;
   }
 
