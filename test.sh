@@ -82,4 +82,12 @@ assert 21 "hello=7; world=hello*2; hello+world;"
 assert 100 "variable1=25; variable2=variable1*4; variable2;"
 assert 42 "x123=21; y456=x123*2; y456;"
 
+# Tests for return statements
+assert 42 "return 42;"
+assert 5 "return 5; return 8;"
+assert 14 "a=3; b=5*6-8; return a+b/2;"
+assert 10 "return 2*5;"
+assert 7 "a=10; return a-3;"
+assert 15 "return 3*5; a=99;"
+
 echo "All tests succeeded 🎉"

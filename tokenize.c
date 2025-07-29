@@ -83,6 +83,12 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    if (strncmp(p, "return", 6) == 0 && !isalnum(p[6])) {
+      cur = cur->next = new_token(TK_RETURN, p, p + 6);
+      p += 6;
+      continue;
+    }
+    
     if(isalpha(*p)){
       char *start = p;
       while(isalnum(*p)) p++;

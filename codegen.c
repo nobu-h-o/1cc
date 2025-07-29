@@ -87,6 +87,14 @@ void gen_stmt(Node* node){
     return;
   }
 
+  if (node->kind == ND_RETURN) {
+    gen_expr(node->lhs);
+    printf("  mov %%rbp, %%rsp\n");
+    printf("  pop %%rbp\n");
+    printf("  ret\n");
+    return;
+  }
+
   error("invalid statement");
 }
 
