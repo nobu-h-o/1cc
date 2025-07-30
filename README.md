@@ -7,7 +7,7 @@
 - [X] Lexical analysis
 - [X] Parser
 - [X] Variables
-- [ ] Functions
+- [X] Functions
 - [ ] Types
 
 ## Compiling and executing
